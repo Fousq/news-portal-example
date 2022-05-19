@@ -8,6 +8,7 @@ public class News {
 
     private long id;
 
+    // Bad practice
     private long news_id;
 
     private Date date;

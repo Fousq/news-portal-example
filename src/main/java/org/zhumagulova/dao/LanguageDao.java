@@ -6,6 +6,8 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 import org.zhumagulova.models.News;
 
+import java.util.Optional;
+
 @Component
 public class LanguageDao {
 
@@ -16,9 +18,12 @@ public class LanguageDao {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    public long getIdByLanguageCode(String langCode) {
-        return jdbcTemplate.query("SELECT id from languages where value = ?", new Object[]{langCode}, new BeanPropertyRowMapper<>(News.class))
-                .stream().findAny().orElse(null).getId();
+    public Optional<Long> getIdByLanguageCode(String langCode) {
+        News news = jdbcTemplate.queryForObject("SELECT id from languages where value = ?", new BeanPropertyRowMapper<>(News.class), langCode);
+        if (news == null) {
+            return Optional.empty();
+        }
+        return Optional.of(news.getId());
     }
 }
 

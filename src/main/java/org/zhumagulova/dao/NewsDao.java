@@ -24,17 +24,19 @@ public class NewsDao {
     }
 
     public List<News> getAllNews(String langCode) {
-        long languageId = languageDao.getIdByLanguageCode(langCode);
+        long languageId = languageDao.getIdByLanguageCode(langCode).orElseThrow(() -> new RuntimeException());
+        // logger is favourable here
         System.out.println("getAllNews " + langCode);
-        return jdbcTemplate.query("SELECT * from news_lang where language = ?", new Object[]{languageId}, new BeanPropertyRowMapper<>(News.class));
+        return jdbcTemplate.queryForList("SELECT * from news_lang where language = ?", News.class, languageId);
     }
 
     public News getById(long id, String langCode) {
-        long languageId = languageDao.getIdByLanguageCode(langCode);
+        long languageId = languageDao.getIdByLanguageCode(langCode).orElseThrow(() -> new RuntimeException());
         return jdbcTemplate.query("SELECT n.date, nl.* from news n left join news_lang nl on n.id=nl.id where n.id = ? and language = ?", new Object[]{id, languageId}, new BeanPropertyRowMapper<>(News.class))
                 .stream().findAny().orElse(null);
     }
 
+    // should be divided into several methods for DAO, and should be executed in transaction on Service layer, because it's a business logic process
     @Transactional
     public void createNews(News news) {
         Date currentDate = new Date(new java.util.Date().getTime());
@@ -47,7 +49,7 @@ public class NewsDao {
     }
 
     public void update(int id, News updatedNews, String langCode) {
-        long languageId = languageDao.getIdByLanguageCode(langCode);
+        long languageId = languageDao.getIdByLanguageCode(langCode).orElseThrow(() -> new RuntimeException());
         jdbcTemplate.update("UPDATE news_lang set title=?, brief=?, content=? where id=? and language=?",
                 updatedNews.getTitle(), updatedNews.getBrief(), updatedNews.getContent(), id,
                 languageId);

@@ -15,12 +15,12 @@ import java.util.Arrays;
 import java.util.List;
 
 import static org.hamcrest.CoreMatchers.hasItems;
-
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+// if using Mockito annotation is desirable, then use @ExtendWith
 public class NewsControllerTest {
 
     @InjectMocks
@@ -35,6 +35,7 @@ public class NewsControllerTest {
 
     @BeforeEach
     public void setup() {
+        // redundant because there's a DI in testable class
         MockitoAnnotations.initMocks(this);
         mockMvc = MockMvcBuilders.standaloneSetup(newsController).build();
     }
@@ -45,7 +46,7 @@ public class NewsControllerTest {
         first.setTitle("test title");
         News second = new News();
         List<News> list = Arrays.asList(first, second);
-        when(newsDao.getAllNews(languageCode)).thenReturn((List)list);
+        when(newsDao.getAllNews(languageCode)).thenReturn(list);
 
         mockMvc.perform(get("/news"))
                 .andExpect(status().isOk())
